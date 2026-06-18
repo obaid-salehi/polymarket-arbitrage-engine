@@ -41,7 +41,7 @@ To validate the strategy without financial risk, `mock_trader.py` provides a rea
 
 Given the lack of arbitrage opportunities during live monitoring, the bot did not complete trades. However, during black-box testing, the bot was successfuly able to handle the detection and execution process multiple times resulting in a positive PnL and high win rate.
 
-* **Execution Speed:** Average verification latency of **~150ms-300ms** (dependent on network conditions).
+* **Execution Speed:** Average verification latency of **~150ms-300ms**.
 * **Profitability:** Successfully captured signals where the total market cost sat between **0.985 and 0.994**.
 * **Reliability:** The Paper Trader successfully filtered out "stale" signals where the price moved between the WebSocket update and the REST verification.
 
