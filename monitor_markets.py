@@ -10,6 +10,18 @@ MARKET_CHANNEL = "market"
 USER_CHANNEL = "user"
 
 class WebSocketOrderBook:
+    from websocket import WebSocketApp
+import json
+import time
+import threading
+from fetch_markets import get_markets_data
+import ssl
+from detect_arbitrage import ArbitrageDetector
+
+MARKET_CHANNEL = "market"
+USER_CHANNEL = "user"
+
+class WebSocketOrderBook:
     def __init__(self, channel_type, url, data, auth, detector, verbose):
         self.channel_type = channel_type
         self.arb_detector = detector
@@ -30,18 +42,14 @@ class WebSocketOrderBook:
         try:
             data = json.loads(message)
             if isinstance(data, dict):
-                event_type = data.get("event_type","")
-                if event_type == "best_bid_ask":
-                    self.arb_detector.check_arb(data)
-                elif data.get("winning_outcome","") != "":
+                self.arb_detector.process_ws_message(data)
+                if data.get("winning_outcome","") != "":
                     print("Restarting Connection. ")
                     exit(0)
             elif isinstance(data, list):
                 for item in data:
-                    event_type = item.get("event_type","")
-                    if event_type == "best_bid_ask":
-                        self.arb_detector.check_arb(item)
-                    elif item.get("winning_outcome","") != "":
+                    self.arb_detector.process_ws_message(item)
+                    if item.get("winning_outcome","") != "":
                         print("Restarting Connection. ")
                         exit(0)
         except json.JSONDecodeError:
@@ -57,7 +65,11 @@ class WebSocketOrderBook:
 
     def on_open(self, ws):
         if self.channel_type == MARKET_CHANNEL:
-            ws.send(json.dumps({"assets_ids": self.data, "type": MARKET_CHANNEL}))
+            ws.send(json.dumps({
+                "assets_ids": self.data,
+                "type": MARKET_CHANNEL,
+                "custom_feature_enabled": True
+            }))
         elif self.channel_type == USER_CHANNEL and self.auth:
             ws.send(json.dumps({"markets": self.data, "type": USER_CHANNEL, "auth": self.auth}))
         else:
@@ -99,4 +111,3 @@ def run_websocket():
 
 if __name__ == "__main__":
     run_websocket()
-
