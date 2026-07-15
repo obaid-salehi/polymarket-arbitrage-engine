@@ -21,24 +21,28 @@ class PaperTrader:
             print("Error fetching price. ")
         return None
 
-    def execute_arb(self, market_id, assets):
-        print(f"Verifying Arb for Market {market_id} via API. ")
-        start_time = time.time()
-        verified_prices = {}
-        for asset_id in assets.keys():
-            live_price = self.get_live_price(asset_id)
-            if live_price is None:
-                print(f"Failed to verify price for {asset_id}")
-                return
-            verified_prices[asset_id] = live_price  
-        total_cost = sum(verified_prices.values())
-        pnl = 1.00 - total_cost
-        self.total_pnl += pnl
-        latency = (time.time() - start_time) * 1000
-        print(f"Success Arb Executed in {latency}ms")
-        if pnl > 0:
+    def execute_arb(self, market_id, volume, cost, profit, exec_A, exec_B):
+        self.balance += profit
+        self.total_pnl += profit
+        
+        print(f"\n{"="*24} EXECUTION REPORT {"="*24}")
+        print(f"Market: {market_id}")
+        print(f"Volume Executed: {volume:.4f} shares")
+        print(f"Total Cost: ${cost:.4f}")
+        print(f"Guaranteed Payout: ${volume:.4f}")
+        print(f"Net Profit: ${profit:.4f}")
+        print(f"Fills for Asset A:")
+        for price, qty in exec_A:
+            print(f"  - Price: ${price:.4f} | Qty: {qty:.4f}")
+        print(f"Fills for Asset B:")
+        for price, qty in exec_B:
+            print(f"  - Price: ${price:.4f} | Qty: {qty:.4f}")
+            
+        if profit > 0:
             self.wins += 1    
         else:
             self.losses += 1
-        print(f"Arb PnL: {pnl:.4f} | Total PnL: {self.total_pnl:.4f}")
+            
+        print(f"New Balance: ${self.balance:.2f} | Total PnL: ${self.total_pnl:.4f}")
         print(f"Wins: {self.wins} | Losses: {self.losses}")
+        print(f"{"="*66}\n")
