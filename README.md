@@ -39,7 +39,7 @@ To validate the strategy without financial risk, `mock_trader.py` provides a rea
 
 ## Results
 
-During testing, the bot successfully handled the detection, volume optimization, and execution process multiple times, resulting in a positive PnL and high win rate.
+During testing, the bot successfully ran however due to constant price discovery and market efficiency, it wasn't able to find or execute any arbitrage opportunities.
 
 * **Zero REST Overhead:** Eliminates the REST-based verification latency entirely, allowing immediate local execution of detected signals.
 * **Optimized Volume:** Instead of simple binary triggers, the bot executes trades with optimal volume, capturing multi-level liquidity and maximizing net profit per signal.
